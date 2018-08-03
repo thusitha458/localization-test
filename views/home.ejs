@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Find shops</title>
+
+<!-- CSS (load bootstrap from a CDN) -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+      integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+      crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+      integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt"
+      crossorigin="anonymous">
+<style>
+    body {
+        padding-top: 50px;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $(function () {
+        let nextPageToken = undefined;
+
+        $('#next-page-button').prop('disabled', true);
+
+        $('#find-shops-button').click(function () {
+            let radius = $('#radius-select').val();
+            $.ajax({
+                url: '/api/nearby/shops',
+                type: "get",
+                data: {
+                    location: '6.819545,79.880083',
+                    radius: radius
+                },
+                success: function(response) {
+                    if (!response.error && response.shops) {
+                        nextPageToken = response.nextPageToken;
+                        if (nextPageToken) {
+                            $('#next-page-button').prop('disabled', false);
+                        } else {
+                            $('#next-page-button').prop('disabled', true);
+                        }
+                        $('.shop').remove();
+                        response.shops.forEach((shop) => {
+                            addShopToList(shop);
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    console.log('Error:', xhr);
+                }
+            });
+        });
+
+        $('#next-page-button').click(function () {
+            if (!nextPageToken) {
+                return;
+            }
+            $.ajax({
+                url: '/api/nearby/shops/next',
+                type: "get",
+                data: {
+                    nextPageToken: nextPageToken
+                },
+                success: function(response) {
+                    if (!response.error && response.shops) {
+                        nextPageToken = response.nextPageToken;
+                        if (nextPageToken) {
+                            $('#next-page-button').prop('disabled', false);
+                        } else {
+                            $('#next-page-button').prop('disabled', true);
+                        }
+                        $('.shop').remove();
+                        response.shops.forEach((shop) => {
+                            addShopToList(shop);
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    console.log('Error:', xhr);
+                }
+            });
+        });
+
+        function addShopToList(shop) {
+            let li = $('<li class="shop list-group-item clearfix">\n' +
+                '            <span class="shop-name text-success">' + shop.name + '</span>\n' +
+                '            <span class="shop-google-id ml-2 float-right text-info">' + shop.googlePlaceId + '</span>\n' +
+                '        </li>');
+
+            $('#shops').append(li);
+        }
+
+    });
+</script>
+
+<body>
+<div class="container clearfix">
+    <div class="input-group mt-3 mb-2">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="radius-select">Lat: 6.819545</label>
+            <label class="input-group-text" for="radius-select">Lon: 79.880083</label>
+        </div>
+        <select class="custom-select" id="radius-select">
+            <option value="100">100m</option>
+            <option value="200">200m</option>
+            <option value="500">500m</option>
+            <option selected value="1000">1km</option>
+            <option value="2000">2km</option>
+            <option value="3000">3km</option>
+            <option value="4000">4km</option>
+            <option value="5000">5km</option>
+            <option value="10000">10km</option>
+            <option value="20000">20km</option>
+            <option value="30000">30km</option>
+            <option value="40000">40km</option>
+            <option value="50000">50km</option>
+        </select>
+        <div class="input-group-append">
+            <button id="find-shops-button" class="btn btn-outline-secondary" type="button">Find shops</button>
+        </div>
+    </div>
+
+    <div class="clearfix">
+        <button id="next-page-button" class="btn btn-outline-secondary float-right" type="button" aria-hidden="true">
+            <i class="fas fa-angle-right"></i>
+        </button>
+    </div>
+
+    <ul id="shops" class="pl-0 mt-3"></ul>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
+        integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

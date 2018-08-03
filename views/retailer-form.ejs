@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+          integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+          integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt"
+          crossorigin="anonymous">
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+            height: 500px;
+        }
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+         body {
+             padding-top: 50px;
+         }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Find Shops</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/add">Add Shop<span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="form-group mt-3 mb-2">
+        <label for="business-name">Business Name</label>
+        <input type="text" class="form-control" id="business-name" placeholder="Enter Business name">
+    </div>
+    <div class="form-group">
+        <label for="owner-name">Owner Name</label>
+        <input type="text" class="form-control" id="owner-name" placeholder="Enter Owner name">
+    </div>
+    <div id="map" class="mt-2 mb-2"></div>
+    <button id="submit-button" class="btn btn-primary" type="button">Submit</button>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    let map = undefined;
+    let marker = undefined;
+    let lat = undefined;
+    let lng = undefined;
+
+    $('#submit-button').click(function () {
+        let businessName = $('#business-name').val();
+        let ownerName = $('#owner-name').val();
+        if (lat && lng && businessName && ownerName && businessName !== '' && ownerName !== '') {
+            $.ajax({
+                url: '/api/retailers/add',
+                type: 'POST',
+                data: {
+                    name: businessName,
+                    owner: ownerName,
+                    location: {
+                        lat: lat,
+                        lng: lng
+                    }
+                },
+                success: function(response) {
+                    if (!response.error) {
+                        alert('Retailer added');
+                    }
+                },
+                error: function(xhr) {
+                    alert('Error:' + xhr);
+                }
+            });
+        } else {
+            alert('Fill fields properly');
+        }
+    });
+
+    /**
+     * Google Maps Javascript library will invoke this function
+     */
+    function initMap() {
+        let center = {
+            lat: 6.819545,
+            lng: 79.880083
+        };
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: center,
+            zoom: 16
+        });
+
+        marker = new google.maps.Marker({
+            position: center,
+            map: map,
+            draggable: true
+        });
+
+        google.maps.event.addListener(marker, 'dragend', function (evt) {
+            lat = evt.latLng.lat().toFixed(8);
+            lng = evt.latLng.lng().toFixed(8);
+        });
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNUn07t9bpR7YNNUUGw-ZEFC1jdbQclbQ&callback=initMap"
+        async defer></script>
+</body>
+</html>

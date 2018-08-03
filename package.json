@@ -1,0 +1,28 @@
+{
+  "name": "localization-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/maps": "^0.5.4",
+    "body-parser": "^1.18.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "mongoose": "^5.2.3",
+    "mongoose-geojson-schema": "^2.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thusitha458/localization-test.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thusitha458/localization-test/issues"
+  },
+  "homepage": "https://github.com/thusitha458/localization-test#readme"
+}
